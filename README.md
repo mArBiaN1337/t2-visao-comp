@@ -12,7 +12,7 @@
 
 - Here's an example:
 
-
+![image](https://github.com/user-attachments/assets/43fca933-d750-42d3-b3b3-f9d1c6b574ca)
 
 - This selection returns:
 
