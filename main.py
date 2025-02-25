@@ -173,7 +173,7 @@ MIN_MATCH_COUNT = 10
 
 SET_NUMBER = 8
 IMG_SELECT = (1,4)
-RANSAC_THRESHOLD = 1.0
+RANSAC_THRESHOLD = 2.5
 
 STRING_SET = f'./images/set{SET_NUMBER}/'
 img1 = cv.imread(STRING_SET + f'{IMG_SELECT[0]}.jpg', 0)   # queryImage
