@@ -1,5 +1,3 @@
-# t2-visao-comp
-
 # Setup
 
 - Add dependencies in "requeriments.txt" to your venv using and *activate it*:
@@ -9,6 +7,8 @@
 - Inside the project directory, use to run the program:
 
     python3 ./main.py
+
+# t2-visao-comp
 
 - Homography Estimation with RANSAC after DLT with Normalization.
 
