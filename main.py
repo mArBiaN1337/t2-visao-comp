@@ -3,7 +3,6 @@
 
 from typing import Tuple
 import time
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -158,8 +157,8 @@ np.set_printoptions(precision=2, suppress=True)
 # Exemplo de Teste da função de homografia usando o SIFT
 MIN_MATCH_COUNT = 10
 
-set_number = 1
-img_select = (1,2)
+set_number = 8
+img_select = (1,4)
 
 string_set = f'./images/set{set_number}/'
 img1 = cv.imread(string_set + f'{img_select[0]}.jpg', 0)   # queryImage
