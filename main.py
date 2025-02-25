@@ -2,10 +2,11 @@
 # Nome: Marcellus T. Biancardi
 
 from typing import Tuple
-import time
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import cv2 as cv
+import sys
+import time
 import math
 
 
@@ -90,7 +91,7 @@ def distance(point_map : np.ndarray,  H : np.ndarray) -> float:
 
     return np.linalg.norm(pt2 - pt2_)
 
-def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int = 1000, MIN_INLIERS : float = 0.8) -> np.ndarray:
+def ransac(point_map : np.ndarray, THRESHOLD : float = 2.5, MAX_ITERATIONS : int = 1000, MIN_INLIERS : float = 0.8) -> np.ndarray:
     
     print(f'RANSAC Homography Estimation with {len(point_map)} points')
     
@@ -107,7 +108,6 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
     iterations = MAX_ITERATIONS
 
     previous_msg_len = 0
-    
     while iterations > sample_count:
         # Sample 4 random points
         sampled_points = [point_map[i] for i in np.random.choice(number_of_points, sample_size)]
@@ -137,6 +137,8 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
         time.sleep(0.001)
         
     
+    homography = compute_normalized_dlt(np.array(list(best_inliers)).reshape(-1,1,4))
+
     end = time.time()
     print('\n----------------------REPORT----------------------')
     print('RANSAC Finished! - Homography Estimation')
@@ -153,17 +155,16 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
     return homography, best_inliers
 
 
-
 np.set_printoptions(precision=2, suppress=True)
 # Exemplo de Teste da função de homografia usando o SIFT
 MIN_MATCH_COUNT = 10
 
-set_number = 8
-img_select = (1,4)
+SET_NUMBER = 3
+IMG_SELECT = (1,2)
 
-string_set = f'./images/set{set_number}/'
-img1 = cv.imread(string_set + f'{img_select[0]}.jpg', 0)   # queryImage
-img2 = cv.imread(string_set + f'{img_select[1]}.jpg', 0)   # trainImage
+STRING_SET = f'./images/set{SET_NUMBER}/'
+img1 = cv.imread(STRING_SET + f'{IMG_SELECT[0]}.jpg', 0)   # queryImage
+img2 = cv.imread(STRING_SET + f'{IMG_SELECT[1]}.jpg', 0)   # trainImage
 
 
 # Inicialização do SIFT
@@ -195,7 +196,12 @@ if len(good) > MIN_MATCH_COUNT:
          kp2[m.trainIdx].pt[1]] for m in good
     ]).reshape(-1, 1, 4)
 
-    M, best_inliers = ransac(point_map)
+    try:
+        M, best_inliers = ransac(point_map)
+
+    except KeyboardInterrupt: 
+        print(f'User Canceled the Program... Exiting')
+        exit(1)
 
     img4 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0])) 
 
@@ -226,6 +232,9 @@ fig1.add_subplot(1, 2, 2)
 plt.imshow(img_inliers, 'gray')
 plt.title('Matching (With RANSAC)')
 
+for i in range(len(fig1.axes)):
+    fig1.axes[i].set_axis_off()
+
 fig2, _ = plt.subplots(2, 2, figsize=(10, 7))
 fig2.add_subplot(2, 2, 1)
 plt.title('1st img')
@@ -237,4 +246,18 @@ fig2.add_subplot(2, 2, 3)
 plt.title('1st after transformation')
 plt.imshow(img4, 'gray')
 
-plt.show()
+for i in range(len(fig2.axes)):
+    fig2.axes[i].set_axis_off()
+
+
+try:
+    plt.show(block=False)
+    input('\nPress ENTER to End Program...')
+
+except KeyboardInterrupt: pass
+
+finally:
+    print('Closing Program...')
+    cv.destroyAllWindows()
+    plt.close('all')
+    exit(0)

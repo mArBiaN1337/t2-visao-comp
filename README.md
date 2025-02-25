@@ -2,6 +2,20 @@
 
 - Homography Estimation with RANSAC after DLT with Normalization.
 
+- Make sure to select the Image from the Sets available in the /images folder. 
+
+- First, select from a number [1 to 8] to represent the set using the variable "SET_NUMBER".
+
+- Inside the corresponding "/images/set" folder, chose two numbers to represent the images to run the program with. 
+
+- The chosen numbers must be in a Tuple inside the variable "IMG_SELECT". 
+
+- Here's an example:
+
+
+
+- This selection returns:
+
 # Matching Comparison - RANSAC Application
   
 ![image](https://github.com/user-attachments/assets/69249bae-59a3-4e21-b50a-498b575afb07)
