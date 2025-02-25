@@ -2,7 +2,6 @@
 
 - Homography Estimation with RANSAC after DLT with Normalization.
 
-
 # Matching Comparison - RANSAC Application
   
 ![image](https://github.com/user-attachments/assets/69249bae-59a3-4e21-b50a-498b575afb07)
