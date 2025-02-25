@@ -15,7 +15,4 @@
   
 ![image](https://github.com/user-attachments/assets/be7ea9b7-2379-49f5-9267-07b334e54aeb)
 
-a
-v
-aa
 
