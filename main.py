@@ -159,8 +159,9 @@ np.set_printoptions(precision=2, suppress=True)
 # Exemplo de Teste da função de homografia usando o SIFT
 MIN_MATCH_COUNT = 10
 
-SET_NUMBER = 3
-IMG_SELECT = (1,2)
+SET_NUMBER = 8
+IMG_SELECT = (1,4)
+RANSAC_THRESHOLD = 2.5
 
 STRING_SET = f'./images/set{SET_NUMBER}/'
 img1 = cv.imread(STRING_SET + f'{IMG_SELECT[0]}.jpg', 0)   # queryImage
@@ -197,7 +198,7 @@ if len(good) > MIN_MATCH_COUNT:
     ]).reshape(-1, 1, 4)
 
     try:
-        M, best_inliers = ransac(point_map)
+        M, best_inliers = ransac(point_map, THRESHOLD=RANSAC_THRESHOLD)
 
     except KeyboardInterrupt: 
         print(f'User Canceled the Program... Exiting')
