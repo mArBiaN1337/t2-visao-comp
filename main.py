@@ -149,7 +149,8 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
     print(f'Final Homography Matrix:')
     print(homography)
     print('-------------------------------------------------')
-    return homography
+
+    return homography, best_inliers
 
 
 
@@ -194,7 +195,7 @@ if len(good) > MIN_MATCH_COUNT:
          kp2[m.trainIdx].pt[1]] for m in good
     ]).reshape(-1, 1, 4)
 
-    M = ransac(point_map)
+    M, best_inliers = ransac(point_map)
 
     img4 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0])) 
 
@@ -208,18 +209,32 @@ draw_params = dict(matchColor = (0,255,0),
 
 img3 = cv.drawMatches(img1, kp1, img2, kp2, good, None, **draw_params)
 
-fig, axs = plt.subplots(2, 2, figsize=(10, 7))
-fig.add_subplot(2, 2, 1)
+inlier_matches = []
+for m in good:
+    pt1 = (kp1[m.queryIdx].pt[0], kp1[m.queryIdx].pt[1])
+    pt2 = (kp2[m.trainIdx].pt[0], kp2[m.trainIdx].pt[1])
+    if (pt1[0], pt1[1], pt2[0], pt2[1]) in best_inliers:
+        inlier_matches.append(m)
+
+img_inliers = cv.drawMatches(img1, kp1, img2, kp2, inlier_matches, None, **draw_params)
+
+fig1, _ = plt.subplots(1, 2, figsize=(10, 7))
+fig1.add_subplot(1, 2, 1)
 plt.imshow(img3, 'gray')
 plt.title('Matching (Without RANSAC)')
-fig.add_subplot(2, 2, 2)
+fig1.add_subplot(1, 2, 2)
+plt.imshow(img_inliers, 'gray')
+plt.title('Matching (With RANSAC)')
+
+fig2, _ = plt.subplots(2, 2, figsize=(10, 7))
+fig2.add_subplot(2, 2, 1)
 plt.title('1st img')
 plt.imshow(img1, 'gray')
-fig.add_subplot(2, 2, 3)
+fig2.add_subplot(2, 2, 2)
 plt.title('2nd img')
 plt.imshow(img2, 'gray')
-fig.add_subplot(2, 2, 4)
+fig2.add_subplot(2, 2, 3)
 plt.title('1st after transformation')
 plt.imshow(img4, 'gray')
-plt.show()
 
+plt.show()
