@@ -91,7 +91,7 @@ def distance(point_map : np.ndarray,  H : np.ndarray) -> float:
 
     return np.linalg.norm(pt2 - pt2_)
 
-def ransac(point_map : np.ndarray, THRESHOLD : float = 2.5, MAX_ITERATIONS : int = 1000, MIN_INLIERS : float = 0.8) -> np.ndarray:
+def ransac(point_map : np.ndarray, THRESHOLD : float = 2.5, MAX_ITERATIONS : int = 10000, MIN_INLIERS : float = 0.8) -> np.ndarray:
     
     print(f'RANSAC Homography Estimation with {len(point_map)} points')
     
@@ -111,6 +111,7 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 2.5, MAX_ITERATIONS : int
     while iterations > sample_count:
         # Sample 4 random points
         sampled_points = [point_map[i] for i in np.random.choice(number_of_points, sample_size)]
+        sample_count += 1
         # Compute homography 
         H = compute_normalized_dlt(sampled_points)
         # Compute inliers
@@ -125,16 +126,27 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 2.5, MAX_ITERATIONS : int
             # Update iterations
             outlier_ratio = 1 - (len(inliers) / number_of_points)
             iterations = math.ceil(math.log(1 - prob_free_outliers) / math.log(1 - (1 - outlier_ratio)**sample_size))
-            if len(best_inliers) > number_of_points * MIN_INLIERS:
-                break
         
-        sample_count += 1
-
+        # Sampled more times than needed after finding a good set of inliers.
+        if iterations < sample_count:
+            iterations = sample_count
+        
+        # If the inliers proportion attend the percentage in MIN_INLIERS, stop.
+        elif len(best_inliers) > number_of_points * MIN_INLIERS:
+            print(f'Minimum Inliers ({MIN_INLIERS:.0%}) Reached!')
+            break
+        
+        # If the maximum number of iterations is reached, stop.
+        elif sample_count == MAX_ITERATIONS:
+            print(f'Max Iterations ({MAX_ITERATIONS}) Reached!')
+            break
+        
         msg = 'Iteration {} of {} - [{:.1f}%]'.format(sample_count, iterations, sample_count * 100/iterations)
         print('\r' + ' ' * previous_msg_len, end='\r')
         print(msg, end='\r',flush=True)
         previous_msg_len = len(msg)
         time.sleep(0.001)
+
         
     
     homography = compute_normalized_dlt(np.array(list(best_inliers)).reshape(-1,1,4))
@@ -161,7 +173,7 @@ MIN_MATCH_COUNT = 10
 
 SET_NUMBER = 8
 IMG_SELECT = (1,4)
-RANSAC_THRESHOLD = 2.5
+RANSAC_THRESHOLD = 1.0
 
 STRING_SET = f'./images/set{SET_NUMBER}/'
 img1 = cv.imread(STRING_SET + f'{IMG_SELECT[0]}.jpg', 0)   # queryImage
