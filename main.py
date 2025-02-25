@@ -36,24 +36,6 @@ def normalize_points(points : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
     return T, norm_pts
 
-'''
-def compute_dlt(pts1 : np.ndarray, pts2 : np.ndarray) -> np.ndarray:
-    pairs = np.array([(pts1[0,i], pts1[1,i], pts2[0,i], pts2[1,i]) for i in range(pts1.shape[1])])
-
-    A = []
-    for x1, y1, x2, y2 in pairs:
-         A.append(np.array([
-            [0, 0, 0, -x1, -y1, -1, y2*x1, y2*y1, y2],
-            [x1, y1, 1, 0, 0, 0, -x2*x1, -x2*y1,-x2],
-            [-y2 * x1, -y2 * y1, -y2, x2 * x1, x2 * y1, x2, 0, 0, 0]
-        ]))
-         
-    A = np.array(A).reshape(-1, 9)
-    _,_,Vt = np.linalg.svd(A)
-    H = Vt[-1,:].reshape(3,3)
-    return H
-'''
-
 def compute_dlt_from_pairs(pairs : np.ndarray) -> np.ndarray:
     A = []
     for x1, y1, x2, y2 in pairs:
@@ -68,9 +50,6 @@ def compute_dlt_from_pairs(pairs : np.ndarray) -> np.ndarray:
     H = Vt[-1,:].reshape(3,3)
     return H
 
-# Função do DLT Normalizado
-# Entrada: pts1, pts2 (pontos "pts1" da primeira imagem e pontos "pts2" da segunda imagem que atendem a pts2=H.pts1)
-# Saída: H (matriz de homografia estimada)
 def compute_normalized_dlt(point_map : np.ndarray) -> np.ndarray:
 
     # Separate points
@@ -112,17 +91,6 @@ def distance(point_map : np.ndarray,  H : np.ndarray) -> float:
 
     return np.linalg.norm(pt2 - pt2_)
 
-# Função do RANSAC
-# Entradas:
-# pts1: pontos da primeira imagem
-# pts2: pontos da segunda imagem 
-# dis_threshold: limiar de distância a ser usado no RANSAC
-# N: número máximo de iterações (pode ser definido dentro da função e deve ser atualizado 
-#    dinamicamente de acordo com o número de inliers/outliers)
-# Ninl: limiar de inliers desejado (pode ser ignorado ou não - fica como decisão de vocês)
-# Saídas:
-# H: homografia estimada
-# pts1_in, pts2_in: conjunto de inliers dos pontos da primeira e segunda imagens
 def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int = 1000, MIN_INLIERS : float = 0.8) -> np.ndarray:
     
     print(f'RANSAC Homography Estimation with {len(point_map)} points')
@@ -138,6 +106,8 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
     outlier_ratio = 0.5
 
     iterations = MAX_ITERATIONS
+
+    previous_msg_len = 0
     
     while iterations > sample_count:
         # Sample 4 random points
@@ -160,9 +130,12 @@ def ransac(point_map : np.ndarray, THRESHOLD : float = 0.7, MAX_ITERATIONS : int
                 break
         
         sample_count += 1
-        print('\r', end='', flush=True)
-        print(f'\rIteration {sample_count} of {iterations} - ({sample_count/iterations:.2%})', end='', flush=True)
-        time.sleep(0.01)
+
+        msg = 'Iteration {} of {} - [{:.1f}%]'.format(sample_count, iterations, sample_count * 100/iterations)
+        print('\r' + ' ' * previous_msg_len, end='\r')
+        print(msg, end='\r',flush=True)
+        previous_msg_len = len(msg)
+        time.sleep(0.001)
         
     
     end = time.time()
