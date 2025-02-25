@@ -258,7 +258,7 @@ try:
 except KeyboardInterrupt: pass
 
 finally:
-    print('Closing Program...')
+    print('Exiting...')
     cv.destroyAllWindows()
     plt.close('all')
     exit(0)
