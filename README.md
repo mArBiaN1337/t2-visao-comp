@@ -1,3 +1,7 @@
+# Students
+
+- Marcellus T. Biancardi, Vinicius Mondadori. 
+
 # Setup
 
 - Add dependencies in "requeriments.txt" to your venv using and *activate it*:

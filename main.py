@@ -1,11 +1,7 @@
-# TRABALHO 2 DE VISÃO COMPUTACIONAL
-# Nome: Marcellus T. Biancardi
-
 from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
-import sys
 import time
 import math
 
