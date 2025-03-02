@@ -210,7 +210,7 @@ if len(good) > MIN_MATCH_COUNT:
 
     except KeyboardInterrupt: 
         print(f'User Canceled the Program... Exiting')
-        exit(1)
+        exit(0)
 
     img4 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0])) 
 
